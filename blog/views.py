@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import View
 
 from .models import Post, Tag
@@ -23,6 +24,12 @@ class PostCreate(ObjectCreateMixin, View):
     template = 'blog/post_create_form.html'
 
 
+class PostUpdate(ObjectUpdateMixin, View):
+    model = Post
+    model_form = PostForm
+    template = 'blog/post_update_form.html'
+
+
 def tags_list(request):
     tags = Tag.objects.all()
     return render(request, 'blog/tags_list.html', context={'tags': tags})
@@ -36,4 +43,20 @@ class TagDetail(ObjectDetailMixin, View):
 class TagCreate(ObjectCreateMixin, View):
     model_form = TagForm
     template = 'blog/tag_create.html'
+
+
+class TagUpdate(ObjectUpdateMixin, View):
+    model = Tag
+    model_form = TagForm
+    template = 'blog/tag_update_form.html'
+
+class TagDelete(View):
+    def get(self, request, slug):
+        tag = Tag.objects.get(slug__iexact=slug)
+        return render(request, 'blog/tag_delete_form.html', context={'tag': tag})
+
+    def post(self, request, slug):
+        tag = Tag.objects.get(slug__iexact=slug)
+        tag.delete()
+        return redirect(reverse('tags_list_url'))
 
